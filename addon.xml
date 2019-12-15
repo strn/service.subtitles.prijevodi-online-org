@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="service.subtitles.prijevodi-online-org"
+       name="Prijevodi-online.org"
+       version="0.1"
+       provider-name="prijevodi-online.org">
+    <requires>
+        <import addon="xbmc.python" version="2.25.0"/>
+        <import addon="script.module.requests" version="2.22.0"/>
+        <import addon="script.module.simplecache" version="1.0.11"/>
+    </requires>
+    <extension point="xbmc.subtitle.module" library="addon.py"/>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="en_GB">Prijevodi-online.org</summary>
+
+        <description lang="en_GB">Search and download [B]Prijevodi-online.org[/B] subtitles[CR][CR]When using manual search for [B]TV shows[/B] please use this example format for season and episode numbers:[CR]The Wire [B]S01E01[/B]</description>
+        <description lang="sr_RS">Претражите и преузмите титлове са [B]Prijevodi-online.org[/B].[CR][CR]Када користите прилагођену претрагу за [B]TV серије[/B] користите формат за сезону и епизоду као у овом примеру:[CR]The Wire [B]S01E01[/B]</description>
+        <description lang="hr_HR">Pretražite i preuzmite podnaslove sa [B]Prijevodi-online.org[/B].[CR][CR]Kada koristite prilagođenu pretragu za [B]TV serije[/B] koristite format za sezonu i epizodu kao u ovom primjeru:[CR]The Wire [B]S01E01[/B]</description>
+
+        <disclaimer lang="en_GB">Users need to provide [B]Prijevodi-online.org[/B] username and password in add-on configuration</disclaimer>
+        <disclaimer lang="sr_RS">Корисници треба да упишу корисничко име и лозинку са сајта [B]Prijevodi-online.org[/B] у подешавања додатка</disclaimer>
+        <disclaimer lang="hr_HR">Korisnici trebaju upisati korisničko ime i lozinku sa sajta [B]Prijevodi-online.org[/B] u postavke dodatka</disclaimer>
+
+        <news lang="en_GB">New addon [CR][CR] -Version 0.1[CR] Initial version</news>
+        <news lang="sr_RS">Нови додатак [CR][CR] -Верзија 0.1[CR] Прва верзија</news>
+        <news lang="hr_HR">Novi dodatak [CR][CR] -Verzija 0.1[CR] Prva verzija</news>
+
+        <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+        <website>https://www.prijevodi-online.org</website>
+        <email>strngit [at] gmail {dot} com</email>
+        <forum>https://forum.kodi.tv/showthread.php?tid=325289</forum>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.png</fanart>
+		</assets>
+        <source>https://github.com/strn/service.subtitles.prijevodi-online-org</source>
+    </extension>
+</addon>
