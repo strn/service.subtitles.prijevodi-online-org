@@ -177,7 +177,7 @@ class Prevodi(object):
                 self.SEARCH_FIELD_USER : self.username,
                 self.SEARCH_FIELD_PASS : self.password,
                 self.SEARCH_FIELD_CLEN : '-1'},
-            headers=self.HEADERS)
+            headers = self.HEADERS)
         r.raise_for_status()
         # In spite of OK status, check if error occured
         regex = re.compile(self.REGEX_LOGIN_ERROR)

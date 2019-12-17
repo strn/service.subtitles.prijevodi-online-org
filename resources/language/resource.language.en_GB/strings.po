@@ -31,7 +31,7 @@ msgid "Login Details"
 msgstr ""
 
 msgctxt "#32005"
-msgid "Your titlovi.com username or password is empty or not valid"
+msgid "Either username or password is empty"
 msgstr ""
 
 msgctxt "#32006"
@@ -39,7 +39,7 @@ msgid "Unauthorized, please check your login information!"
 msgstr ""
 
 msgctxt "#32007"
-msgid "Titlovi.com login error, try again"
+msgid "Prijevodi-online.org login error, try again"
 msgstr ""
 
 msgctxt "#32008"
@@ -59,21 +59,5 @@ msgid "Choose subtitle file"
 msgstr ""
 
 msgctxt "#32012"
-msgid "Convert latin/cyrillic alphabet"
-msgstr ""
-
-msgctxt "#32013"
-msgid "Don't convert"
-msgstr ""
-
-msgctxt "#32014"
-msgid "Convert latin to cyrillic"
-msgstr ""
-
-msgctxt "#32015"
-msgid "Convert cyrillic to latin"
-msgstr ""
-
-msgctxt "#32016"
-msgid "Subtitle conversion"
+msgid "Wrong username or password"
 msgstr ""

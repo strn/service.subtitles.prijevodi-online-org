@@ -31,8 +31,8 @@ msgid "Login Details"
 msgstr "Појединости пријаве"
 
 msgctxt "#32005"
-msgid "Your 'prijevodi-online.org' username or password is empty or not valid"
-msgstr "Нисте подесили корисничко име и лозинку или су погрешни"
+msgid "Either username or password is empty"
+msgstr "Нисте уписали корисничко име или лозинку"
 
 msgctxt "#32006"
 msgid "Unauthorized, please check your login information!"
@@ -59,21 +59,5 @@ msgid "Choose subtitle file"
 msgstr "Одаберите датотеку са титловима"
 
 msgctxt "#32012"
-msgid "Convert latin/cyrillic alphabet"
-msgstr "Пресловљавање азбука <=> абецеда"
-
-msgctxt "#32013"
-msgid "Don't convert"
-msgstr "Немој пресловљавати"
-
-msgctxt "#32014"
-msgid "Convert latin to cyrillic"
-msgstr "Преслови латиницу у ћирилицу"
-
-msgctxt "#32015"
-msgid "Convert cyrillic to latin"
-msgstr "Преслови ћирилицу у латиницу"
-
-msgctxt "#32016"
-msgid "Subtitle conversion"
-msgstr "Пресловљавање титлова"
+msgid "Wrong username or password"
+msgstr "Погрешно корисничко име или лозинка"
