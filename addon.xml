@@ -6,8 +6,7 @@
     <requires>
         <import addon="xbmc.python" version="2.25.0"/>
         <import addon="script.module.requests" version="2.22.0"/>
-        <import addon="script.module.simplecache" version="1.0.11"/>
-        <import addon="script.module.rarfile" version="3.1"/>
+        <import addon="vfs.libarchive" version="1.0.5"/>
     </requires>
 
     <extension point="xbmc.subtitle.module" library="addon.py"/>
@@ -15,9 +14,9 @@
         <platform>all</platform>
         <summary lang="en_GB">Prijevodi-online.org</summary>
 
-        <description lang="en_GB">Search and download [B]Prijevodi-online.org[/B] subtitles[CR][CR]When using manual search for [B]TV shows[/B] please use this example format for season and episode numbers:[CR]The Wire [B]S01E01[/B]</description>
-        <description lang="sr_RS">Претражите и преузмите титлове са [B]Prijevodi-online.org[/B].[CR][CR]Када користите прилагођену претрагу за [B]TV серије[/B] користите формат за сезону и епизоду као у овом примеру:[CR]The Wire [B]S01E01[/B]</description>
-        <description lang="hr_HR">Pretražite i preuzmite podnaslove sa [B]Prijevodi-online.org[/B].[CR][CR]Kada koristite prilagođenu pretragu za [B]TV serije[/B] koristite format za sezonu i epizodu kao u ovom primjeru:[CR]The Wire [B]S01E01[/B]</description>
+        <description lang="en_GB">Search and download [B]Prijevodi-online.org[/B] subtitles[CR][CR]When using manual search for [B]TV shows[/B] please use this example format for season and episode numbers:[CR][CR]The Wire [B]S01E01[/B]</description>
+        <description lang="sr_RS">Претражите и преузмите титлове са [B]Prijevodi-online.org[/B].[CR][CR]Када користите прилагођену претрагу за [B]TV серије[/B] користите формат за сезону и епизоду као у овом примеру:[CR][CR]The Wire [B]S01E01[/B]</description>
+        <description lang="hr_HR">Pretražite i preuzmite podnaslove sa [B]Prijevodi-online.org[/B].[CR][CR]Kada koristite prilagođenu pretragu za [B]TV serije[/B] koristite format za sezonu i epizodu kao u ovom primjeru:[CR][CR]The Wire [B]S01E01[/B]</description>
 
         <disclaimer lang="en_GB">Users need to provide [B]Prijevodi-online.org[/B] username and password in add-on configuration</disclaimer>
         <disclaimer lang="sr_RS">Корисници треба да упишу корисничко име и лозинку са сајта [B]Prijevodi-online.org[/B] у подешавања додатка</disclaimer>

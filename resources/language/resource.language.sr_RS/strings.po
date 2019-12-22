@@ -61,3 +61,35 @@ msgstr "Одаберите датотеку са титловима"
 msgctxt "#32012"
 msgid "Wrong username or password"
 msgstr "Погрешно корисничко име или лозинка"
+
+msgctxt "#32013"
+msgid "English"
+msgstr "енглески"
+
+msgctxt "#32014"
+msgid "Serbian"
+msgstr "српски"
+
+msgctxt "#32015"
+msgid "Serbian (Latin)"
+msgstr "српски (лат)"
+
+msgctxt "#32016"
+msgid "Croatian"
+msgstr "хрватски"
+
+msgctxt "#32017"
+msgid "German"
+msgstr "немачки"
+
+msgctxt "#32018"
+msgid "Serbo-Croatian"
+msgstr "српскохрватски"
+
+msgctxt "#32019"
+msgid "Bosnian"
+msgstr "'босански'"
+
+msgctxt "#32020"
+msgid "Unknown"
+msgstr "непознат"

@@ -61,3 +61,35 @@ msgstr ""
 msgctxt "#32012"
 msgid "Wrong username or password"
 msgstr ""
+
+msgctxt "#32013"
+msgid "English"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Serbian"
+msgstr ""
+
+msgctxt "#32015"
+msgid "Serbian (Latin)"
+msgstr ""
+
+msgctxt "#32016"
+msgid "Croatian"
+msgstr ""
+
+msgctxt "#32017"
+msgid "German"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Serbo-Croatian"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Bosnian"
+msgstr ""
+
+msgctxt "#32020"
+msgid "Unknown"
+msgstr ""
