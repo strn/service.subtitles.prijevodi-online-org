@@ -3,9 +3,11 @@
 # Various helper functions
 
 import glob
+import os
 import re
 import sys
 import unicodedata
+from   urllib import quote_plus
 import urlparse
 import xbmc
 
@@ -27,11 +29,16 @@ def normalize_string(_string):
         pass
     return text
 
+# Returns list of arguments passed to HTTP GET request
 def get_params(param_string):
     return urlparse.parse_qs(param_string)
 
+# Returns string suitable for passing as HTTP GET parameter
+def get_quoted_str(param_string):
+    return quote_plus(param_string)
+
 def get_cachedir_title(param_string):
-    pattern = '\-{2,}'
+    pattern = r'\-{2,}'
     filename = re.sub(pattern, '-', param_string.replace('_','-').replace(' ','-'))
     return filename
 
@@ -52,6 +59,27 @@ def get_language_list(param_string):
         if lang in list(langs_map.keys()):
             ret_map[langs_map[lang][0]] = langs_map[lang][1]
     return ret_map
+
+# Returns subtitle candidate name
+def get_subtitle_candidate(filepath, lang, ext=''):
+    # Get just filename
+    filename = filepath.split('/')[-1]
+    return ".".join(filename.split('.')[:-1] + [lang, ext])
+
+# Returns possible subtitles for given media and language
+def get_possible_subtitles(cachedir, filepath, language):
+    candidate = get_subtitle_candidate(filepath, language, '*')
+    subtitle_mask = os.path.join(cachedir, candidate)
+    return glob.glob(subtitle_mask)
+
+# Determine archive URL for unpacking (vfs)
+def get_archive_url(archive_path):
+    if archive_path.endswith('rar'):
+        return "rar://{0}/".format(get_quoted_str(archive_path))
+    elif archive_path.endswith('zip'):
+        return "zip://{0}/".format(get_quoted_str(archive_path))
+    else:
+        return None
 
 # Remove subdirectories from given directory
 # that are older than N days

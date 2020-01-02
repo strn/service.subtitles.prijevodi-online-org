@@ -6,7 +6,8 @@
     <requires>
         <import addon="xbmc.python" version="2.25.0"/>
         <import addon="script.module.requests" version="2.22.0"/>
-        <import addon="vfs.libarchive" version="1.0.5"/>
+        <import addon="vfs.rar" version="2.0.7.2"/>
+        <import addon="script.module.rarfile" version="3.1"/>
     </requires>
 
     <extension point="xbmc.subtitle.module" library="addon.py"/>

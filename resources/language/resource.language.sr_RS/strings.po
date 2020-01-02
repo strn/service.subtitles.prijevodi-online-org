@@ -93,3 +93,11 @@ msgstr "'босански'"
 msgctxt "#32020"
 msgid "Unknown"
 msgstr "непознат"
+
+msgctxt "#32021"
+msgid "Subtitle suitable for:"
+msgstr "Одговарајући титл за:"
+
+msgctxt "#32022"
+msgid "Download subtitle"
+msgstr "Преузми титл"

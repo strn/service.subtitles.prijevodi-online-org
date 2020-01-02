@@ -3,7 +3,6 @@
 import json
 import os
 import re
-import shutil
 import sys
 
 import xbmc
@@ -16,6 +15,7 @@ __addon__      = xbmcaddon.Addon()
 __dialog__     = xbmcgui.Dialog()
 __player__     = xbmc.Player()
 __addonname__  = __addon__.getAddonInfo('name')
+__addonid__    = __addon__.getAddonInfo('id')
 get_local_str  = __addon__.getLocalizedString
 if sys.version_info[0] >= 3:
     __cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path'))
@@ -126,7 +126,7 @@ class ActionHandler(object):
             else:
                 return
         langs_map = pu.get_language_list(self.params['languages'][0])
-        self.log.notice("Languages map: {0}".format(langs_map))
+        self.log.debug("Languages map: {0}".format(langs_map))
         # Construct regex to catch all languages we are interested in
         regex_lang = r'\s+({0})'.format('|'.join(langs_map.keys()).replace('ba','bs'))
         regex_lang_match = re.compile(regex_lang, re.IGNORECASE)
@@ -144,19 +144,27 @@ class ActionHandler(object):
             if supp_country == 'bs':
                 supp_country = 'ba'
 
-            self.log.notice("url='{0}', subt_name='{1}', subt_suitable='{2}'".format(
-                url, subt_name, subt_suitable))
-            self.log.debug(get_local_str(langs_map[supp_country]))
+            subt_lang = xbmc.convertLanguage(supp_country, xbmc.ISO_639_1)
+            self.log.notice("Subtitle: url='{0}', subt_name='{1}', subt_suitable='{2}', lang={3}".format(
+                url, subt_name, subt_suitable, subt_lang))
 
             # Setting thumbnail image makes country flag
             list_item = xbmcgui.ListItem(
                 label  = get_local_str(langs_map[supp_country]),
                 label2 = "[B]{0}[/B]".format(subt_name))
-            list_item.setArt({'thumb': xbmc.convertLanguage(supp_country, xbmc.ISO_639_1)})
+            list_item.setArt({'thumb': subt_lang})
+
+            plugin_url = "plugin://{0}/?action=download&url={1}&suitable={2}&cachedir={3}&lang={4}&filepath={5}".format(
+                __addonid__,
+                pu.get_quoted_str(url),
+                pu.get_quoted_str(subt_suitable),
+                pu.get_quoted_str(curr_show['cachedir']),
+                subt_lang,
+                pu.get_quoted_str(curr_show['file_original_path']))
 
             xbmcplugin.addDirectoryItem(
                 handle   = self.handle,
-                url      = url,
+                url      = plugin_url,
                 listitem = list_item,
                 isFolder = False)
 
@@ -168,16 +176,75 @@ class ActionHandler(object):
     # Downloading subtitles that were selected during "search"
     # or "manualsearch" invocation
     def download(self):
-        self.log.notice("Downloading subtitles")
+        ret = __dialog__.yesno(
+            get_local_str(32021),
+            self.params['suitable'][0],
+            yeslabel=get_local_str(32022))
+        if not ret:
+            self.log.debug("Subtitle download cancelled")
+            return
+        # Check if subtitles are already downloaded in cache directory
+        possible_subtitles = pu.get_possible_subtitles(
+            self.params['cachedir'][0],
+            self.params['filepath'][0],
+            self.params['lang'][0])
+        if len(possible_subtitles) == 0:
+            self.log.debug("Downloading subtitles for '{0}'".format(self.params['filepath'][0]))
+            arch_name, arch_content = self.prev.get_subtitle_archive(self.params['url'][0])
+            archive_path = os.path.join(self.params['cachedir'][0], arch_name)
+            with open(archive_path, 'wb') as f:
+                f.write(arch_content)
+                f.close()
+            self.log.debug("Subtitle archive saved as '{0}'".format(archive_path))
+            archive_url = pu.get_archive_url(archive_path)
+            if not archive_url:
+                self.log.error("Unable to unpack subtitles")
+                return
+            dirs, files = xbmcvfs.listdir(archive_url)
+            if len(files) == 0:
+                # Empty archive
+                self.log.error("No files in archive '{0}'".format(archive_path))
+                return
+            self.log.notice("Archive: dirs={0}, files={1}".format(dirs, files))
+            archive_source = "{0}/{1}".format(archive_url, files[0])
+            archive_dest = "{0}/{1}".format(self.params['cachedir'][0], files[0])
+            self.log.debug("Unpacking '{0}' to '{1}'".format(archive_source, archive_dest))
+            xbmcvfs.copy(archive_source, archive_dest)
+            # Remove archive
+            os.remove(archive_path)
+            # Rename subtitle accordingly
+            final_subtitle = pu.get_subtitle_candidate(
+                self.params['filepath'][0],
+                self.params['lang'][0],
+                archive_dest.rpartition('.')[2])
+            final_subtitle = os.path.join(self.params['cachedir'][0], final_subtitle)
+            os.rename(archive_dest, final_subtitle)
+            self.log.debug("Renamed subtitle file '{0}' to '{1}'".format(archive_dest, final_subtitle))
+            self.add_subtitle_dir_item(final_subtitle)
+        else:
+            self.log.debug("Using cached subtitles: {0}".format(possible_subtitles))
+            # TODO: Handle case of more than one available subtitle
+            self.add_subtitle_dir_item(possible_subtitles[0])
+
+    # Adds directory item with subtitle file
+    def add_subtitle_dir_item(self, subtitle_path):
+        list_item = xbmcgui.ListItem(label='subtitle')
+        self.log.notice("Returned subtitle: '{0}'".format(subtitle_path))
+        xbmcplugin.addDirectoryItem(
+            handle   = self.handle,
+            url      = subtitle_path,
+            listitem = list_item,
+            isFolder = False)
 
     def take_title_from_focused_item(self):
-        lbl_year           = str(xbmc.getInfoLabel("ListItem.Year"))
-        lbl_orig_title     = xbmc.getInfoLabel("ListItem.OriginalTitle")
-        lbl_tvshow_title   = xbmc.getInfoLabel("ListItem.TVShowTitle")
-        lbl_season         = str(xbmc.getInfoLabel("ListItem.Season"))
-        lbl_episode        = str(xbmc.getInfoLabel("ListItem.Episode"))
-        lbl_type           = xbmc.getInfoLabel("ListItem.DBTYPE") # movie/tvshow/season/episode
-        lbl_title          = xbmc.getInfoLabel("ListItem.Title")
+        lbl_year         = str(xbmc.getInfoLabel("ListItem.Year"))
+        lbl_orig_title   = xbmc.getInfoLabel("ListItem.OriginalTitle")
+        lbl_tvshow_title = xbmc.getInfoLabel("ListItem.TVShowTitle")
+        lbl_season       = str(xbmc.getInfoLabel("ListItem.Season"))
+        lbl_episode      = str(xbmc.getInfoLabel("ListItem.Episode"))
+        lbl_type         = xbmc.getInfoLabel("ListItem.DBTYPE") # movie/tvshow/season/episode
+        lbl_title        = xbmc.getInfoLabel("ListItem.Title")
+        lbl_filepath     = xbmc.getInfoLabel("ListItem.FileNameAndPath")
 
         is_movie = lbl_type == 'movie' or xbmc.getCondVisibility("Container.Content(movies)")
         is_episode = lbl_type == 'episode' or xbmc.getCondVisibility("Container.Content(episodes)")
@@ -202,7 +269,8 @@ class ActionHandler(object):
             "lbl_type"       : lbl_type,
             "lbl_orig_title" : lbl_orig_title,
             "is_movie"       : is_movie,
-            "is_episode"     : is_episode
+            "is_episode"     : is_episode,
+            "filepath"       : lbl_filepath
         }
         self.log.notice("Focused item ({0}): {1}".format(lbl_type, str(ret)))
         return ret
@@ -223,6 +291,7 @@ class ActionHandler(object):
             item['tvshow_title']       = unicode(xbmc.getInfoLabel("VideoPlayer.TVShowTitle"), 'utf-8') # Show
             item['title']              = unicode(xbmc.getInfoLabel("VideoPlayer.Title"), 'utf-8')       # try to get original title
             item['file_original_path'] = __player__.getPlayingFile().decode('utf-8')                    # Full path of a playing file
+            self.log.debug("Got info from currently playing file")
         else:
             itemdata                   = self.take_title_from_focused_item()
             item['year']               = itemdata['year']
@@ -230,10 +299,11 @@ class ActionHandler(object):
             item['episode']            = itemdata['episode']
             item['title']              = itemdata['title']
             item['tvshow_title']       = itemdata['tvshow_title']
-            item['file_original_path'] = ""
-        self.log.notice("Current show: {0}".format(item))
+            item['file_original_path'] = itemdata['filepath']
+
         item['cachedir'] = os.path.join(__cache__, pu.get_cachedir_title(item['tvshow_title']),
             "{0}x{1}".format(item['season'], item['episode']))
+        self.log.debug("Current show: {0}".format(item))
         return item
 
 # end class ActionHandler

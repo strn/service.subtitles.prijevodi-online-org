@@ -93,3 +93,11 @@ msgstr ""
 msgctxt "#32020"
 msgid "Unknown"
 msgstr ""
+
+msgctxt "#32021"
+msgid "Subtitle suitable for:"
+msgstr ""
+
+msgctxt "#32022"
+msgid "Download subtitle"
+msgstr ""

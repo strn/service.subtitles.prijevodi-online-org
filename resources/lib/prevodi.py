@@ -271,8 +271,6 @@ class Prevodi(object):
         archive_name = self._get_archive_name(r.headers)
         if archive_name:
             self.archive = archive_name
-            with open(archive_name, 'wb') as f:
-                f.write(r.content)
-                f.close()
+            return (archive_name, r.content,)
         else:
-            raise PrevodException("Archive name verification failed!")
+            raise PrevodException("Archive '{0}' is not a subtitle archive!".format(archive_link))
