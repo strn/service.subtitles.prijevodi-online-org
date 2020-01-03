@@ -141,8 +141,6 @@ class ActionHandler(object):
             supp_country = match.group(1).lower()
             if supp_country.find('irilic') > -1:
                 supp_country = 'sr'
-            if supp_country == 'bs':
-                supp_country = 'ba'
 
             subt_lang = xbmc.convertLanguage(supp_country, xbmc.ISO_639_1)
             self.log.notice("Subtitle: url='{0}', subt_name='{1}', subt_suitable='{2}', lang={3}".format(

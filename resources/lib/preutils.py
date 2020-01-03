@@ -46,7 +46,7 @@ def get_cachedir_title(param_string):
 def get_language_list(param_string):
     lang_list = param_string.split(",")
     langs_map = {
-        "Bosnian"            : ("ba", 32019,),
+        "Bosnian"            : ("bs", 32019,),
         "Croatian"           : ("hr", 32016,),
         "English"            : ("en", 32013,),
         "Serbian"            : ("sr", 32015,),
