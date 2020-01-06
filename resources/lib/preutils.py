@@ -72,15 +72,6 @@ def get_possible_subtitles(cachedir, filepath, language):
     subtitle_mask = os.path.join(cachedir, candidate)
     return glob.glob(subtitle_mask)
 
-# Determine archive URL for unpacking (vfs)
-def get_archive_url(archive_path):
-    if archive_path.endswith('rar'):
-        return "rar://{0}/".format(get_quoted_str(archive_path))
-    elif archive_path.endswith('zip'):
-        return "zip://{0}/".format(get_quoted_str(archive_path))
-    else:
-        return None
-
 # Remove subdirectories from given directory
 # that are older than N days
 def remove_older_than(toplevel, days):

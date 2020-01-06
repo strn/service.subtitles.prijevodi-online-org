@@ -33,7 +33,9 @@ sys.path.append (__resource__)
 # Import own modules
 from   prevodi    import PrevodException, Prevodi
 from   prelogging import Prelogger
+import prearchive as     pa
 import preutils   as     pu
+
 
 # Action handler
 class ActionHandler(object):
@@ -190,27 +192,30 @@ class ActionHandler(object):
             self.log.debug("Downloading subtitles for '{0}'".format(self.params['filepath'][0]))
             arch_name, arch_content = self.prev.get_subtitle_archive(self.params['url'][0])
             archive_path = os.path.join(self.params['cachedir'][0], arch_name)
+            # Write to file because of unified archive interface
             with open(archive_path, 'wb') as f:
                 f.write(arch_content)
                 f.close()
             self.log.debug("Subtitle archive saved as '{0}'".format(archive_path))
-            archive_url = pu.get_archive_url(archive_path)
-            if not archive_url:
-                self.log.error("Unable to unpack subtitles")
-                return
-            dirs, files = xbmcvfs.listdir(archive_url)
+
+            archive = pa.Archive(archive_path, __resource__)
+            files = archive.list()
             if len(files) == 0:
                 # Empty archive
                 self.log.error("No files in archive '{0}'".format(archive_path))
                 return
-            self.log.notice("Archive: dirs={0}, files={1}".format(dirs, files))
-            archive_source = "{0}/{1}".format(archive_url, files[0])
-            archive_dest = "{0}/{1}".format(self.params['cachedir'][0], files[0])
-            self.log.debug("Unpacking '{0}' to '{1}'".format(archive_source, archive_dest))
-            xbmcvfs.copy(archive_source, archive_dest)
+            else:
+                self.log.debug("Archive: files={0}".format(files))
+            archive_source = files[0]
+            archive_dest = self.params['cachedir'][0]
+            self.log.debug("Unpacking '{0}' to '{1}' using '{2}'".format(
+                archive_source, archive_dest, archive.get_unrar_path()))
+            archive.extract(archive_source, archive_dest)
+
             # Remove archive
             os.remove(archive_path)
             # Rename subtitle accordingly
+            archive_dest = os.path.join(archive_dest, files[0])
             final_subtitle = pu.get_subtitle_candidate(
                 self.params['filepath'][0],
                 self.params['lang'][0],
