@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+# System modules
 import json
 import os
 import re
+import shutil
 import sys
 
+# Kodi modules
 import xbmc
 import xbmcaddon
 import xbmcgui
@@ -13,24 +16,32 @@ import xbmcvfs
 
 __addon__      = xbmcaddon.Addon()
 __dialog__     = xbmcgui.Dialog()
+__progress__   = xbmcgui.DialogProgress()
 __player__     = xbmc.Player()
 __addonname__  = __addon__.getAddonInfo('name')
 __addonid__    = __addon__.getAddonInfo('id')
 get_local_str  = __addon__.getLocalizedString
+
 if sys.version_info[0] >= 3:
     __cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path'))
     __profile__  = xbmc.translatePath(__addon__.getAddonInfo('profile'))
     __resource__ = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
+    __resdata__  = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'data'))
     __cache__    = xbmc.translatePath(os.path.join(__profile__, 'cache'))
+    __unrar__    = xbmc.translatePath(os.path.join(__profile__, 'unrar'))
+    __temp__     = xbmc.translatePath(os.path.join(__profile__, 'temp'))
 else:
     __cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path')).decode("utf-8")
     __profile__  = xbmc.translatePath(__addon__.getAddonInfo('profile')).decode("utf-8")
     __resource__ = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib')).decode("utf-8")
+    __resdata__  = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'data')).decode("utf-8")
     __cache__    = xbmc.translatePath(os.path.join(__profile__, 'cache')).decode("utf-8")
+    __unrar__    = xbmc.translatePath(os.path.join(__profile__, 'unrar')).decode("utf-8")
+    __temp__     = xbmc.translatePath(os.path.join(__profile__, 'temp')).decode("utf-8")
 
 sys.path.append (__resource__)
 
-# Import own modules
+# Addon modules
 from   prevodi    import PrevodException, Prevodi
 from   prelogging import Prelogger
 import prearchive as     pa
@@ -44,25 +55,31 @@ class ActionHandler(object):
     SETTINGS_PASSWORD = 'prevodi-password'
 
     def __init__(self, raw_params):
-        self.log  = Prelogger()
-        self.username = __addon__.getSetting(self.SETTINGS_USERNAME)
-        self.password = __addon__.getSetting(self.SETTINGS_PASSWORD)
+        self.log         = Prelogger()
+        self.username    = __addon__.getSetting(self.SETTINGS_USERNAME)
+        self.password    = __addon__.getSetting(self.SETTINGS_PASSWORD)
         self.script_name = __addonname__
-        self.params = pu.get_params(sys.argv[2])
-        self.action = self.params['?action'][0]
-        self.prev = Prevodi(self.username, self.password)
-        self.resume = raw_params[2][7:].lower() == 'true'
-        self.handle = int(raw_params[1])
-        if not xbmcvfs.exists(__cache__):
-            xbmcvfs.mkdirs(__cache__)
+        self.params      = pu.get_params(sys.argv[2])
+        self.action      = self.params['?action'][0]
+        self.prev        = Prevodi(self.username, self.password)
+        self.resume      = raw_params[2][7:].lower() == 'true'
+        self.handle      = int(raw_params[1])
+        if xbmcvfs.exists(__temp__):
+            shutil.rmtree(__temp__)
+        for dir in __cache__, __unrar__, __temp__ :
+            if not xbmcvfs.exists(dir):
+                xbmcvfs.mkdirs(dir)
         self.ACTION_MAP = {
             'search'       : self.search,
             'manualsearch' : self.manual_search,
             'download'     : self.download
         }
         self.log.debug("Action handler invoked with: {0}".format(raw_params[2]))
-        self.log.notice("Parameters: {0}, resume: {1}, handle: {2}".format(
+        self.log.debug("Parameters: {0}, resume: {1}, handle: {2}".format(
             self.params, self.resume, self.handle))
+        # Remove old directories
+        dirs = pu.remove_older_than(__cache__, 3)
+        self.log.debug("Removed {0} items older than 3 days".format(dirs))
 
     def show_notification(self, message):
         xbmc.executebuiltin(u'Notification({0}, {1})'.format(self.script_name, message).encode("utf-8"))
@@ -102,7 +119,7 @@ class ActionHandler(object):
             json_file_path = os.path.join(curr_show['cachedir'], 'subtitles.json')
             with open(json_file_path, 'r') as f:
                 subtitle_archives = json.load(f)
-            self.log.notice("Loaded data from '{0}'".format(json_file_path))
+            self.log.debug("Loaded data from '{0}'".format(json_file_path))
         else:
             # Search in prijevodi
             self.prev.search(curr_show['tvshow_title'])
@@ -122,7 +139,7 @@ class ActionHandler(object):
                     with open(json_file_path, 'wb') as f:
                         json.dump(self.prev.archives, f)
                     subtitle_archives = self.prev.archives
-                    self.log.notice("Saved data to '{0}'".format(json_file_path))
+                    self.log.debug("Saved data to '{0}'".format(json_file_path))
                 else:
                     return
             else:
@@ -145,7 +162,7 @@ class ActionHandler(object):
                 supp_country = 'sr'
 
             subt_lang = xbmc.convertLanguage(supp_country, xbmc.ISO_639_1)
-            self.log.notice("Subtitle: url='{0}', subt_name='{1}', subt_suitable='{2}', lang={3}".format(
+            self.log.debug("Subtitle: url='{0}', subt_name='{1}', subt_suitable='{2}', lang={3}".format(
                 url, subt_name, subt_suitable, subt_lang))
 
             # Setting thumbnail image makes country flag
@@ -198,7 +215,14 @@ class ActionHandler(object):
                 f.close()
             self.log.debug("Subtitle archive saved as '{0}'".format(archive_path))
 
-            archive = pa.Archive(archive_path, __resource__)
+            archive = pa.Archive(archive_path, __resdata__)
+            archive.unrar_dir = __unrar__
+            archive.temp_dir = __temp__
+            archive.dialog = __progress__
+            archive.str_get_unrar = get_local_str(32023)
+            opersys, architecture = archive.get_platform_info()
+            self.log.debug("Platform ID: '{0}_{1}'".format(opersys, architecture))
+            archive.check_unrar_exe()
             files = archive.list()
             if len(files) == 0:
                 # Empty archive
@@ -209,11 +233,10 @@ class ActionHandler(object):
             archive_source = files[0]
             archive_dest = self.params['cachedir'][0]
             self.log.debug("Unpacking '{0}' to '{1}' using '{2}'".format(
-                archive_source, archive_dest, archive.get_unrar_path()))
+                archive_source, archive_dest, archive.get_dearch_path()))
             archive.extract(archive_source, archive_dest)
+            archive.remove()
 
-            # Remove archive
-            os.remove(archive_path)
             # Rename subtitle accordingly
             archive_dest = os.path.join(archive_dest, files[0])
             final_subtitle = pu.get_subtitle_candidate(
@@ -223,19 +246,22 @@ class ActionHandler(object):
             final_subtitle = os.path.join(self.params['cachedir'][0], final_subtitle)
             os.rename(archive_dest, final_subtitle)
             self.log.debug("Renamed subtitle file '{0}' to '{1}'".format(archive_dest, final_subtitle))
-            self.add_subtitle_dir_item(final_subtitle)
+            self.add_subtitle_dir_item(final_subtitle, self.params['lang'][0])
         else:
             self.log.debug("Using cached subtitles: {0}".format(possible_subtitles))
             # TODO: Handle case of more than one available subtitle
-            self.add_subtitle_dir_item(possible_subtitles[0])
+            self.add_subtitle_dir_item(possible_subtitles[0], self.params['lang'][0])
 
     # Adds directory item with subtitle file
-    def add_subtitle_dir_item(self, subtitle_path):
-        list_item = xbmcgui.ListItem(label='subtitle')
-        self.log.notice("Returned subtitle: '{0}'".format(subtitle_path))
+    def add_subtitle_dir_item(self, subtitle_path, lang):
+        # Copy subtitle to __temp__
+        shutil.copy2(subtitle_path, __temp__)
+        returned_path = os.path.join(__temp__, os.path.basename(subtitle_path))
+        self.log.debug("Returned subtitle: '{0}', lang: '{1}'".format(returned_path, lang))
+        list_item = xbmcgui.ListItem(label=lang)
         xbmcplugin.addDirectoryItem(
             handle   = self.handle,
-            url      = subtitle_path,
+            url      = returned_path,
             listitem = list_item,
             isFolder = False)
 
@@ -275,7 +301,7 @@ class ActionHandler(object):
             "is_episode"     : is_episode,
             "filepath"       : lbl_filepath
         }
-        self.log.notice("Focused item ({0}): {1}".format(lbl_type, str(ret)))
+        self.log.debug("Focused item ({0}): {1}".format(lbl_type, str(ret)))
         return ret
 
     # Collect TV show data from either currently playing file

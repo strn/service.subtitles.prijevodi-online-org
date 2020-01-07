@@ -1,0 +1,35 @@
+{
+	"home" : "https://www.rarlab.com/rar/",
+	"exe" : {
+        "win_32" : {
+        	"source"      : "unrarw32.exe",
+        	"destination" : "unrar.exe",
+        	"compressed"  : ""
+    	},
+        "win_64" : {
+        	"source"      : "unrarw32.exe",
+        	"destination" : "unrar.exe",
+        	"compressed"  : ""
+        },
+        "linux_x86" : {
+        	"source"      : "rarlinux-5.8.0.tar.gz",
+        	"destination" : "unrar",
+        	"compressed"  : "targz"
+        },
+        "linux_x86_64" : {
+        	"source"      : "rarlinux-x64-5.8.0.tar.gz",
+        	"destination" : "unrar",
+        	"compressed"  : "targz"
+        },
+        "linux_armv4" : {
+        	"source"      : "unrar-4.1.3-armv4l.tar.gz",
+        	"destination" : "unrar",
+        	"compressed"  : "targz"
+        },
+        "linux_armv5up" : {
+        	"source"      : "unrar-5.5.0-arm.gz",
+        	"destination" : "unrar",
+        	"compressed"  : "gz"
+        }
+    }
+}

@@ -5,7 +5,9 @@
 import glob
 import os
 import re
+import stat
 import sys
+import time
 import unicodedata
 from   urllib import quote_plus
 import urlparse
@@ -75,4 +77,30 @@ def get_possible_subtitles(cachedir, filepath, language):
 # Remove subdirectories from given directory
 # that are older than N days
 def remove_older_than(toplevel, days):
-    pass
+
+    def remove(path):
+        if os.path.isdir(path):
+            try:
+                os.rmdir(path)
+            except OSError:
+                raise Exception("Unable to remove folder '{0}'".format(path))
+        else:
+            try:
+                if os.path.exists(path):
+                    os.remove(path)
+            except OSError:
+                raise Exception("Unable to remove file '{0}'".format(path))
+
+    time_in_secs = time.time() - (days * 24 * 60 * 60)
+    items = 0
+    for root, dirs, files in os.walk(toplevel, topdown=False):
+        for file_ in files:
+            full_path = os.path.join(root, file_)
+            stat = os.stat(full_path)
+            if stat.st_mtime <= time_in_secs:
+                remove(full_path)
+                items += 1
+        if not os.listdir(root):
+            remove(root)
+            items += 1
+    return items

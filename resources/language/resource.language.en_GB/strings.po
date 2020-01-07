@@ -101,3 +101,7 @@ msgstr ""
 msgctxt "#32022"
 msgid "Download subtitle"
 msgstr ""
+
+msgctxt "#32023"
+msgid "Fetching UnRAR executable ..."
+msgstr ""
